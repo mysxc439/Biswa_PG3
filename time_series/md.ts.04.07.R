@@ -1,7 +1,7 @@
 rm(list = ls())
 datasets = c("co2", "AirPassengers", "JohnsonJohnson", "uspop", "USPop", "lynx", "Nile", "sunspots")
  
-dataplot= function(idx){
+dataplot = function(idx){
   par(mfrow = c(2,1))  # Set plotting area to 2 rows, 1 column
   dataset_name = datasets[idx]
   dataset = get(dataset_name)  # Get the actual dataset object
