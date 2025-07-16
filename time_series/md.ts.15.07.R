@@ -39,3 +39,7 @@ parts$type  # type of decomposition(i.e, additive or multiplicative)
 de_trend
 unadj_seasonal = tapply(de_trend,cycle(de_trend), FUN=mean,na.rm=TRUE);unadj_seasonal
 adj_seasonal = unadj_seasonal-mean(unadj_seasonal);adj_seasonal
+
+noise = de_trend - adj_seasonal[cycle(de_trend)];noise
+
+matrix(co2, ncol=12, byrow=TRUE)
