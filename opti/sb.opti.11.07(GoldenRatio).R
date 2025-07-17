@@ -26,6 +26,7 @@ golden_section = function(func, a, b,iteration= 1000, tol= 1e-5) {
       x2 = a+phi*(b-a)
       f2 = func(x2)
     }
+  # escape condition
   if((b-a)<= tol || iter>= iteration)
     {flag=FALSE} else{flag=TRUE}
   }
@@ -41,5 +42,5 @@ golden_section = function(func, a, b,iteration= 1000, tol= 1e-5) {
 }
 
 # outputs
-result1 = golden_section(func1, -5, 15, 7)
+result1 = golden_section(func1, -5, 15, 16)
 result2 = golden_section(func2, 0, 1, tol=0.3)
