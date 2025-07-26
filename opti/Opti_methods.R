@@ -149,14 +149,18 @@ steepest_descent = function(func, x0, alpha = NULL, max_iterations = 1000, tol =
       cat("\nConverged due to small gradient norm.\n")
       break
     }
-    # If alpha is not provided, compute using Hessian
+    # If alpha is not provided, compute using backtracking line search
     if (is.null(alpha)) {
-      hess_mat = numerical_hessian(func, x)
-      if (det(hess_mat) == 0) {
-        cat("\nHessian is singular, stopping optimization.\n")
-        break
+      alpha_iter = 1
+      c = 1e-4
+      while (TRUE) {
+        x_new = x - alpha_iter * grad
+        f_val_new = func(x_new)
+        if (f_val_new <= f_val - c * alpha_iter * grad_norm^2) {
+          break
+        }
+        alpha_iter = alpha_iter / 2
       }
-      alpha_iter = as.numeric(t(grad) %*% grad / (t(grad) %*% hess_mat %*% grad))
     } else {
       alpha_iter = alpha
     }
@@ -179,6 +183,7 @@ steepest_descent = function(func, x0, alpha = NULL, max_iterations = 1000, tol =
   cat("\n--- Steepest Descent Results ---\n")
   cat("Estimated minimizer: ", round(x, 4), "\n")
   cat("Estimated minimum f(x): ", round(f_val, 4), "\n")
+  cat("Alpha used: ", ifelse(is.null(alpha), "calculated", round(alpha_iter, 4)), "\n")
   cat("Iterations: ", iter, "\n")
   cat("Final gradient norm: ", round(grad_norm, 4), "\n")
   return(list(minimizer = round(x,4), fmin = f_val, iterations = iter, final_gradient_norm = grad_norm))
