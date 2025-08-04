@@ -149,15 +149,16 @@ steepest_descent = function(func, x0, alpha = NULL, max_iterations = 1000, tol =
       cat("\nConverged due to small gradient norm.\n")
       break
     }
-    # If alpha is not provided, compute using Hessian
+    # If alpha is not provided, compute using backtracking line search
     if (is.null(alpha)) {
-      hess_mat = numerical_hessian(func, x)
-      if (det(hess_mat) == 0) {
-        cat("\nHessian is singular, stopping optimization.\n")
-        break
+      backtracking_line_search <- function(func, x, grad, direction, alpha = 1, rho = 0.5, c = 1e-4) {
+      fx = func(x)
+      while (func(x + alpha * direction) > fx + c * alpha * sum(grad * direction)) {
+        alpha = alpha * rho
       }
-      alpha_iter = as.numeric(t(grad) %*% grad / (t(grad) %*% hess_mat %*% grad))
-      #alter
+      return(alpha)
+      }
+      alpha_iter = backtracking_line_search(func, x, grad, -grad)
     } else {
       alpha_iter = alpha
     }
