@@ -219,7 +219,7 @@ newtons_method = function(func, x0, max_iterations = 100, tol = 1e-6) {
     f_val = f_val_new
     iter = i
     
-    cat("Iteration ", iter, ": x = ", round(x, 4), ", f(x) = ", round(f_val, 4), ", |grad| = ", round(grad_norm, 4), "\n")
+    #cat("Iteration ", iter, ": x = ", round(x, 4), ", f(x) = ", round(f_val, 4), ", |grad| = ", round(grad_norm, 4), "\n")
   }
   
   cat("\n--- Newton's Method Results ---\n")
@@ -254,7 +254,7 @@ conjugate_gradient = function(func, x0, direction=NULL, max_iterations = 1000, t
   
   for (i in 1:max_iterations) {
     grad_norm = sqrt(sum(grad^2))
-    
+    cat(d,"\n")
     if (grad_norm < tol) {
       cat("\nConverged due to small gradient norm.\n")
       break
@@ -276,11 +276,11 @@ conjugate_gradient = function(func, x0, direction=NULL, max_iterations = 1000, t
     f_val = func(x)
     iter = i
     
-    cat("Iteration ", iter, ": x = ", round(x, 4), ", f(x) = ", round(f_val, 4), ", |grad| = ", round(grad_norm, 4), "\n")
+    #cat("Iteration ", iter, ": x = ", round(x, 4), ", f(x) = ", round(f_val, 4), ", |grad| = ", round(grad_norm, 4), "\n")
   }
   
   cat("\n--- Conjugate Gradient Method Results ---\n")
-  cat("Estimated minimizer: ", round(x, 2), "\n")
+  cat("Estimated minimizer: ", round(x, 4), "\n")
   cat("Estimated minimum f(x): ", round(f_val, 4), "\n")
   cat("Iterations: ", iter, "\n")
   cat("Final gradient norm: ", round(grad_norm, 4), "\n")
@@ -322,3 +322,10 @@ f = function(x) {
 }
 result = conjugate_gradient(f, c(0, 0), max_iterations = 100, tol =0.01)
 result = conjugate_gradient(f, c(0, 0), direction=c(1,0), max_iterations = 100, tol =0.01)
+
+f = function(x) {
+  return((x[1]-2)^2+(x[1]-2*x[2])^2)
+}
+result = conjugate_gradient(f,c(0,3),max_iterations = 100, tol= 0.1)
+result = conjugate_gradient(f,c(0,3),direction=c(1,1),max_iterations = 100, tol= 0.1)
+result = steepest_descent(f,c(0,3),max_iterations = 100, tol= 0.0001)
