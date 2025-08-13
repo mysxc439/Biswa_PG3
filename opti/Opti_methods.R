@@ -22,8 +22,8 @@ golden_section = function(func, a, b,max_iteration= 1000, tol= 1e-5) {
       x2 = a+phi*(b-a)
       f2 = func(x2)
     }
-    # escape condition
-    if((b-a)<= tol || iter>= max_iteration)
+  # escape condition
+  if((b-a)<= tol || iter>= max_iteration)
     {flag=FALSE} else{flag=TRUE}
   }
   # Final estimate
@@ -137,10 +137,10 @@ steepest_descent = function(func, x0, alpha = NULL, max_iterations = 1000, tol =
   x = x0
   f_val = func(x)
   iter = 0
-  
+
   cat("--- Starting Steepest Descent ---\n")
   cat("Initial point: ", round(x, 4), ", Function value: ", round(f_val, 4), "\n")
-  
+
   for (i in 1:max_iterations) {
     grad = numerical_gradient(func, x)
     grad_norm = sqrt(sum(grad^2))
@@ -152,11 +152,11 @@ steepest_descent = function(func, x0, alpha = NULL, max_iterations = 1000, tol =
     # If alpha is not provided, compute using backtracking line search
     if (is.null(alpha)) {
       backtracking_line_search <- function(func, x, grad, direction, alpha = 1, rho = 0.5, c = 1e-4) {
-        fx = func(x)
-        while (func(x + alpha * direction) > fx + c * alpha * sum(grad * direction)) {
-          alpha = alpha * rho
-        }
-        return(alpha)
+      fx = func(x)
+      while (func(x + alpha * direction) > fx + c * alpha * sum(grad * direction)) {
+        alpha = alpha * rho
+      }
+      return(alpha)
       }
       alpha_iter = backtracking_line_search(func, x, grad, -grad)
     } else {
@@ -167,17 +167,17 @@ steepest_descent = function(func, x0, alpha = NULL, max_iterations = 1000, tol =
     f_val_new = func(x_new)
     if (f_val_new >= f_val) {
       cat("\nNo improvement in function value, stopping optimization.\n")
-      break
+        break
     }
     x = x_new
     f_val = f_val_new
     iter = i
-    
+
     if (i %% 10 == 0 || i == 1) { # Print progress every 10 iterations or at the first
       cat("Iteration ", iter, ": x = ", round(x, 4), ", f(x) = ", round(f_val, 4), ", |grad| = ", round(grad_norm, 4), "\n")
     }
   }
-  
+
   cat("\n--- Steepest Descent Results ---\n")
   cat("Estimated minimizer: ", round(x, 4), "\n")
   cat("Estimated minimum f(x): ", round(f_val, 4), "\n")
@@ -193,20 +193,20 @@ newtons_method = function(func, x0, max_iterations = 100, tol = 1e-6) {
   x = x0
   f_val = func(x)
   iter = 0
-  
+
   cat("\n--- Starting Newton's Method ---\n")
   cat("Initial point: ", round(x, 4), ", Function value: ", round(f_val, 4), "\n")
-  
+
   for (i in 1:max_iterations) {
     grad = numerical_gradient(func, x)
     hess = numerical_hessian(func, x)
     grad_norm = sqrt(sum(grad^2))
-    
+
     if (grad_norm < tol) {
       cat("\nConverged due to small gradient norm.\n")
       break
     }
-    
+
     if (det(hess) == 0) {
       cat("Warning: Hessian is singular. Newton's method may fail.\n")
       break
@@ -214,14 +214,14 @@ newtons_method = function(func, x0, max_iterations = 100, tol = 1e-6) {
     p_k = solve(hess) %*% grad
     x_new = x - p_k
     f_val_new = func(x_new)
-    
+
     x = x_new
     f_val = f_val_new
     iter = i
-    
+
     cat("Iteration ", iter, ": x = ", round(x, 4), ", f(x) = ", round(f_val, 4), ", |grad| = ", round(grad_norm, 4), "\n")
   }
-  
+
   cat("\n--- Newton's Method Results ---\n")
   cat("Estimated minimizer: ", round(x, 4), "\n")
   cat("Estimated minimum f(x): ", round(f_val, 4), "\n")
@@ -231,25 +231,16 @@ newtons_method = function(func, x0, max_iterations = 100, tol = 1e-6) {
 }
 
 # ============================================================================
-# Conjugate Gradient Method for Optimization 
+# Conjugate Gradient Method for Optimization (no prior direction given)
 # ============================================================================
-conjugate_gradient = function(func, x0, direction=NULL, max_iterations = 1000, tol = 1e-6) {
+conjugate_gradient = function(func, x0, max_iterations = 1000, tol = 1e-6) {
   x = x0
   grad = numerical_gradient(func, x)
-  
-  # Use provided direction or default to -grad
-  if (!is.null(direction)) {
-    if (length(direction) != length(x0)) {
-      stop("Direction vector must be the same length as x0")
-    }
-    d = direction/sqrt(sum(direction^2))  # Normalize
-  } else {
-    d = -grad
-  }
+  d = -grad
   f_val = func(x)
   iter = 0
   
-  cat("\n--- Starting Conjugate Gradient Method ---\n")
+  cat("\n--- Starting Conjugate Gradient Method (Fletcher-Reeves) ---\n")
   cat("Initial point: ", round(x, 4), ", Function value: ", round(f_val, 4), "\n")
   
   for (i in 1:max_iterations) {
@@ -280,7 +271,7 @@ conjugate_gradient = function(func, x0, direction=NULL, max_iterations = 1000, t
   }
   
   cat("\n--- Conjugate Gradient Method Results ---\n")
-  cat("Estimated minimizer: ", round(x, 2), "\n")
+  cat("Estimated minimizer: ", round(x, 4), "\n")
   cat("Estimated minimum f(x): ", round(f_val, 4), "\n")
   cat("Iterations: ", iter, "\n")
   cat("Final gradient norm: ", round(grad_norm, 4), "\n")
@@ -288,15 +279,68 @@ conjugate_gradient = function(func, x0, direction=NULL, max_iterations = 1000, t
 }
 
 # ============================================================================
+# Conjugate Gradient Method for optimization with Custom Direction Update
+# ============================================================================
+conjugate_gradient_custom = function(func, x0, max_iterations = 1000, tol = 1e-6) {
+  x = x0
+  grad = numerical_gradient(func, x)
+  d = -grad
+  f_val = func(x) 
+  iter = 0
+  
+  cat("\n--- Starting Conjugate Gradient Method (Custom Direction) ---\n")
+  cat("Initial point: ", round(x, 4), ", Function value: ", round(f_val, 4), "\n")
+  
+  for (i in 1:max_iterations) {
+    grad_norm = sqrt(sum(grad^2))
+    
+    if (grad_norm < tol) {
+      cat("\nConverged due to small gradient norm.\n")
+      break
+    }
+    
+    # Backtracking line search
+    alpha = 1
+    while (func(x+alpha*d)>func(x)+1e-4*alpha*sum(grad*d)) {
+      alpha = alpha / 2
+    }
+    # Update x using the direction d
+    x_new = x+alpha*d
+    grad_new = numerical_gradient(func,x_new)
+    beta = max(0,sum(grad_new*(grad_new-grad))/sum(grad^2))
+    d = -grad_new+beta*d
+    
+    x = x_new
+    grad = grad_new
+    f_val = func(x)
+    iter = i
+    
+    cat("Iteration ", iter, ": x = ", round(x, 4), ", f(x) = ", round(f_val, 4), ", |grad| = ", round(grad_norm, 4), "\n")
+  }
+  
+  cat("\n--- Conjugate Gradient Method Results ---\n")
+  cat("Estimated minimizer: ", round(x, 4), "\n")
+  cat("Estimated minimum f(x): ", round(f_val, 4), "\n")
+  cat("Iterations: ", iter, "\n")
+  cat("Final gradient norm: ", round(grad_norm, 4), "\n")
+  return(list(minimizer = round(x, 4), fmin = f_val, iterations = iter, final_gradient_norm = grad_norm))
+}
+
+
+
+
+
+
+# ============================================================================
 # example usage
 # ============================================================================
 f = function(x) {
-  return(x^2)
+   return(x^2)
 }
 result= golden_section(f, -5, 15, max_iteration=7)
 
 f = function(x) {
-  return(x*(x-1.5))
+   return(x*(x-1.5))
 }
 result= golden_section(f, 0, 1, tol=0.001)
 result= fibonacci_search(f, 0, 1, max_iteration=20, tol=0.001)
@@ -320,9 +364,5 @@ result = newtons_method(f, c(1, -1, 1))
 f = function(x) {
   return(x[1]^2 + 2*x[2]^2 + x[1]- x[2] +1)
 }
-result = conjugate_gradient(f, c(0, 0), max_iterations = 100, tol =0.01)
-result = conjugate_gradient(f, c(0, 0), direction=c(1,0), max_iterations = 100, tol =0.01)
-
-f = function(x) {
-  return(())
-}
+result = conjugate_gradient_custom(f, c(0, 0), max_iterations = 1000, tol = 1e-6)
+resilt = conjugate_gradient(f, c(0, 0), max_iterations = 1000, tol = 1e-6)
